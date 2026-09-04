@@ -1,149 +1,218 @@
-# AI-Based Sign Language Recognition System
+# AI Real-Time Sign Language Recognition
+
+A real-time sign language recognition system that uses computer vision and deep learning to recognize hand gestures through a webcam and display the predicted gesture in a web interface.
 
 ## Overview
 
-The AI-Based Sign Language Recognition System is a real-time gesture recognition application developed using Computer Vision, MediaPipe, OpenCV, Flask, and Deep Learning techniques. The system is designed to recognize hand gestures through a webcam and convert them into meaningful text output, helping bridge the communication gap between hearing-impaired individuals and the general public.
+This project captures live webcam video, detects hand landmarks using MediaPipe, extracts numerical landmark features, and uses an LSTM-based deep learning model to classify sign language gestures.
 
-The application captures live video input, detects hand landmarks using MediaPipe, extracts spatial features from the hand, and classifies gestures using a trained neural network model. The recognized gesture is then displayed in real time through a user-friendly web interface.
+The recognized gesture is displayed in real time through a Flask web application.
 
----
+## Currently Supported Gestures
+
+The current trained model recognizes 4 gestures:
+
+- HATE
+- HELLO
+- NO
+- YES
+
+## System Workflow
+
+Webcam
+↓
+Hand Detection
+↓
+MediaPipe Hand Landmarks
+↓
+Landmark Feature Extraction
+↓
+30-Frame Sequence
+↓
+LSTM Deep Learning Model
+↓
+Gesture Prediction
+↓
+Flask Web Interface
 
 ## Features
 
-- Real-time hand gesture recognition
+- Real-time webcam-based gesture recognition
 - Hand landmark detection using MediaPipe
-- Deep Learning-based gesture classification
-- Webcam-based gesture input
-- Real-time prediction display
-- Voice output support using Text-to-Speech
-- Interactive web interface using Flask
-- Support for multiple predefined gestures
-- Expandable architecture for adding new gestures
-
----
-
-## Supported Gestures
-
-- HELLO
-- YES
-- NO
-- HATE
-- STOP
-- ARE YOU SERIOUS
-- WAIT
-- PEACE
-- LOSER
-- DISLIKE
-- LOVE YOU
-- ROCK
-- THREE
-- OK
-
----
+- 21 hand landmarks per frame
+- 63 numerical features per frame
+- 30-frame temporal sequences
+- LSTM-based gesture classification
+- 4-class gesture recognition
+- Real-time prediction confidence
+- Browser-based interface using Flask
+- Locally collected training data
+- Trained TensorFlow/Keras model
 
 ## Technologies Used
 
-### Programming Language
 - Python
-
-### Computer Vision
 - OpenCV
 - MediaPipe
-
-### Deep Learning
-- TensorFlow
-- Keras
-
-### Web Framework
-- Flask
-
-### Frontend
-- HTML
-- CSS
-- JavaScript
-
-### Additional Libraries
+- TensorFlow / Keras
 - NumPy
-- pyttsx3
-
----
-
-## System Architecture
-
-1. Webcam captures live video frames.
-2. MediaPipe detects hand landmarks.
-3. Landmark coordinates are extracted as feature vectors.
-4. Features are processed by the trained deep learning model.
-5. The model predicts the corresponding gesture.
-6. The predicted gesture is displayed on the interface.
-7. Text-to-Speech converts recognized gestures into spoken output.
-
----
-
-## Dataset Information
-
-The dataset consists of manually collected hand gesture samples captured under controlled conditions. Each gesture is recorded from multiple angles and positions to improve recognition accuracy and model robustness.
-
-Dataset characteristics:
-
-- 14 gesture classes
-- Approximately 150–200 samples per gesture
-- Single-hand gesture recognition
-- Landmark-based feature extraction
-- Real-time data collection using webcam
-
----
-
-## Project Workflow
-
-Data Collection → Hand Detection → Landmark Extraction → Data Preprocessing → Model Training → Gesture Classification → Text Generation → Voice Output
-
----
-
-## Hardware Requirements
-
-- Laptop/Desktop
-- Webcam
-- Minimum 4 GB RAM
-- Intel i3 Processor or above
-
----
-
-## Software Requirements
-
-- Python 3.x
-- OpenCV
-- MediaPipe
-- TensorFlow
 - Flask
-- NumPy
-- pyttsx3
+- HTML / CSS
+- LSTM Neural Networks
 
----
+## Model Details
 
-## Future Enhancements
+The model uses a sequence-based LSTM architecture to learn temporal patterns from hand landmark movements.
 
-- LSTM-based sequence modeling
-- Dynamic gesture recognition
-- Mobile application support
-- Cloud deployment
-- Speech-to-text integration
-- Improved gesture vocabulary
-- Multi-hand recognition support
+### Input
 
----
+- Sequence length: 30 frames
+- Features per frame: 63
+- Hand landmarks: 21
+- Coordinates per landmark: X, Y, Z
 
-## Applications
+### Architecture
 
-- Sign language communication assistance
-- Educational platforms
-- Accessibility solutions
-- Human-computer interaction
-- Smart assistance systems
+Input: (30, 63)
+↓
+LSTM (128)
+↓
+Dropout
+↓
+LSTM (64)
+↓
+Dropout
+↓
+Dense (64, ReLU)
+↓
+Dropout
+↓
+Dense (4, Softmax)
 
----
+### Training
+
+The current dataset contains:
+
+- HATE: 200 samples
+- HELLO: 200 samples
+- NO: 200 samples
+- YES: 200 samples
+
+Total: 800 sequences
+
+The dataset is kept locally and is not included in the GitHub repository.
+
+### Test Accuracy
+
+The current trained model achieved approximately:
+
+**99.37% test accuracy**
+
+> Note: This accuracy is based on the current locally collected dataset and test split.
+
+## Project Structure
+
+AI-Real-Time-Sign-Language-Recognition/
+│
+├── App.py
+├── README.md
+├── .gitignore
+│
+├── backend/
+│   ├── collect_data.py
+│   └── train_model.py
+│
+├── model/
+│   └── sign_language_model.h5
+│
+└── templates/
+    └── index.html
 
 ## Installation
 
+### 1. Clone the repository
+
 ```bash
-pip install -r requirements.txt
+git clone https://github.com/sandeep171199/AI-Real-Time-Sign-Language-Recognition.git
+cd AI-Real-Time-Sign-Language-Recognition
+2. Create a virtual environment
+python -m venv .venv
+
+Activate it on Windows:
+
+.venv\Scripts\Activate.ps1
+3. Install dependencies
+
+Install the required Python packages:
+
+pip install numpy==1.23.5
+pip install opencv-python==4.7.0
+pip install mediapipe==0.10.9
+pip install tensorflow==2.12.0
+pip install flask
+pip install pyttsx3
+pip install scikit-learn==1.3.2
+Run the Application
+
+Start the Flask application:
+
+python App.py
+
+Open your browser and visit:
+
+http://127.0.0.1:5000
+
+Allow camera access and show one of the supported gestures in front of the webcam.
+
+Data Collection
+
+Training data can be collected using:
+
+python backend/collect_data.py
+
+The collector extracts hand landmarks from webcam frames and stores each 30-frame sequence as a NumPy .npy file.
+
+The training dataset is intentionally excluded from GitHub using .gitignore.
+
+Model Training
+
+To train the model using the collected local dataset:
+
+python backend/train_model.py
+
+The trained model is saved as:
+
+model/sign_language_model.h5
+How It Works
+The webcam captures live video.
+MediaPipe detects the user's hand.
+The 21 hand landmarks are extracted.
+X, Y, and Z coordinates are converted into 63 numerical features.
+Features from 30 consecutive frames form one sequence.
+The LSTM model processes the sequence.
+The model predicts one of the four supported gestures.
+The prediction and confidence are displayed in the Flask web interface.
+Future Improvements
+Add more sign language gestures
+Increase the size and diversity of the dataset
+Improve robustness under different lighting conditions
+Support multiple hands
+Add continuous sentence formation
+Add text-to-speech output
+Improve prediction smoothing
+Deploy the application as a web service
+Project Contribution
+
+This project has been developed and customized as a hands-on implementation of real-time sign language recognition.
+
+The current implementation includes a customized 4-class dataset, model training pipeline, trained LSTM model, webcam-based prediction system, and Flask web interface.
+
+License / Attribution
+
+This project was developed using an existing open-source sign language recognition project as a starting point and has been substantially modified for this implementation.
+
+Original project:
+
+https://github.com/Adnan-19-eng/Real-Time-Sign-Language-Recognition
+
+Please retain and follow the original project's license and attribution requirements where applicable.
