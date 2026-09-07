@@ -10,8 +10,6 @@ The project provides a Flask-based web interface where the webcam feed and recog
 
 ## Currently Supported Gestures
 
-The current trained model supports the following four gestures:
-
 - HATE
 - HELLO
 - NO
@@ -25,9 +23,10 @@ The current trained model supports the following four gestures:
 - LSTM-based sequence classification
 - Support for four trained gestures
 - Confidence-based prediction
-- Real-time prediction through a Flask web interface
-- Custom dataset collection and model training
-- Local execution using Python
+- Flask web interface
+- Custom dataset collection
+- Custom model training
+- Real-time prediction
 
 ## Technologies Used
 
@@ -44,7 +43,19 @@ The current trained model supports the following four gestures:
 
 ## System Architecture
 
-Webcam → OpenCV → MediaPipe Hand Landmarks → 30-Frame Sequence → LSTM Neural Network → Gesture Prediction → Flask Web Interface
+Webcam
+↓
+OpenCV
+↓
+MediaPipe Hand Landmarks
+↓
+30-Frame Sequence
+↓
+LSTM Neural Network
+↓
+Gesture Prediction
+↓
+Flask Web Interface
 
 ## Model Details
 
@@ -54,7 +65,7 @@ The model receives a sequence of 30 consecutive frames.
 
 For each frame, MediaPipe extracts 21 hand landmarks.
 
-Each landmark contains three values:
+Each landmark contains:
 
 - X coordinate
 - Y coordinate
@@ -64,23 +75,23 @@ Therefore:
 
 21 landmarks × 3 values = 63 features per frame
 
-Final model input shape:
+Final input shape:
 
 30 × 63
 
-### Architecture
+### Model Architecture
 
 The LSTM model contains:
 
 - LSTM layer with 128 units
-- Dropout layer
+- Dropout layer with 0.3 dropout rate
 - LSTM layer with 64 units
-- Dropout layer
+- Dropout layer with 0.3 dropout rate
 - Dense layer with 64 units
-- Dropout layer
+- Dropout layer with 0.2 dropout rate
 - Softmax output layer with 4 classes
 
-The output classes are:
+Output classes:
 
 - HATE
 - HELLO
@@ -101,25 +112,24 @@ Total dataset:
 
 4 gestures × 200 sequences = 800 sequences
 
-The dataset is divided into training and testing sets.
+Dataset split:
 
-Training samples: 640
+- Training samples: 640
+- Testing samples: 160
 
-Testing samples: 160
-
-The collected dataset is stored locally under:
+The collected dataset is stored locally in:
 
 backend/data/
 
-The dataset is excluded from Git tracking using the project's .gitignore configuration.
+The dataset is excluded from Git tracking using .gitignore.
 
 ## Training
 
-The model is trained using TensorFlow and Keras.
+The model was trained using TensorFlow and Keras.
 
 Training configuration:
 
-- Gestures: 4
+- Number of gestures: 4
 - Total sequences: 800
 - Training sequences: 640
 - Testing sequences: 160
@@ -134,14 +144,14 @@ model/sign_language_model.h5
 
 ## Test Accuracy
 
-The trained model achieved approximately:
+The trained model achieved:
 
-**99.37% test accuracy**
+99.37% test accuracy
 
-The final model produces predictions for four classes:
+Class mapping:
 
 | Class | Gesture |
-|---|---|
+|-------|---------|
 | 0 | HATE |
 | 1 | HELLO |
 | 2 | NO |
@@ -157,7 +167,7 @@ MediaPipe detects the hand and extracts 21 hand landmarks from every frame.
 
 ### 2. Feature Extraction
 
-The X, Y and Z coordinates of the detected landmarks are stored as numerical features.
+The X, Y and Z coordinates of the detected landmarks are converted into numerical features.
 
 Each frame produces 63 features.
 
@@ -167,11 +177,11 @@ Thirty consecutive frames are grouped together to create one input sequence.
 
 ### 4. Model Training
 
-The collected sequences are used to train an LSTM neural network.
+The collected sequences are used to train the LSTM neural network.
 
 ### 5. Real-Time Prediction
 
-During application execution, new webcam frames are continuously processed.
+During application execution, webcam frames are continuously processed.
 
 The latest 30 frames are passed to the trained model.
 
@@ -228,31 +238,20 @@ On Windows PowerShell:
 
 ### 4. Install Dependencies
 
-Install the required packages:
-
 pip install numpy==1.23.5
-
 pip install opencv-python==4.7.0
-
 pip install mediapipe==0.10.9
-
 pip install tensorflow==2.12.0
-
 pip install matplotlib==3.7.5
-
 pip install opencv-contrib-python==4.7.0.72
-
 pip install contourpy==1.0.7
-
 pip install flask
-
 pip install pyttsx3
-
 pip install scikit-learn==1.3.2
 
 ## Run the Application
 
-After installing the dependencies, activate the virtual environment and run:
+Activate the virtual environment and run:
 
 python App.py
 
@@ -272,7 +271,7 @@ New training data can be collected using:
 
 python backend/collect_data.py
 
-The data collection script is configured for the following gestures:
+The current data collection script supports:
 
 - HATE
 - HELLO
@@ -289,7 +288,7 @@ backend/data/
 
 ## Model Training
 
-After collecting the required dataset, the model can be trained using:
+After collecting the required dataset, train the model using:
 
 python backend/train_model.py
 
@@ -301,24 +300,24 @@ model/sign_language_model.h5
 
 ## How It Works
 
-The application performs the following steps during real-time recognition:
+The application performs the following steps:
 
 1. Open the webcam using OpenCV.
 2. Capture the current video frame.
 3. Process the frame using MediaPipe.
-4. Detect the hand and extract its 21 landmarks.
-5. Store the 63 landmark values for the current frame.
-6. Build a sequence of 30 frames.
-7. Send the sequence to the trained LSTM model.
-8. Calculate the prediction confidence.
-9. Display the recognized gesture when the confidence passes the configured threshold.
-10. Continue processing the next webcam frames.
+4. Detect the hand.
+5. Extract 21 hand landmarks.
+6. Store the 63 landmark values for the current frame.
+7. Build a sequence of 30 frames.
+8. Send the sequence to the trained LSTM model.
+9. Calculate the prediction confidence.
+10. Display the recognized gesture when the confidence passes the configured threshold.
 
 If no hand is detected, the current sequence is reset.
 
 ## Flask Web Interface
 
-The project includes a Flask web interface.
+The project includes a Flask-based web interface.
 
 The interface displays:
 
@@ -329,17 +328,15 @@ The interface displays:
 - Prediction confidence
 - Frame information
 
-The interface is implemented using:
+The HTML interface is located at:
 
 templates/index.html
 
-The Flask application is implemented using:
+The Flask application is implemented in:
 
 App.py
 
 ## Applications
-
-The project demonstrates how computer vision and deep learning can be used for gesture recognition.
 
 Potential applications include:
 
@@ -361,24 +358,35 @@ Possible future improvements include:
 - Adding text-to-speech output
 - Improving the web interface
 - Deploying the application as an online service
-- Improving model performance under different lighting conditions
+- Improving performance under different lighting conditions
 - Supporting continuous sentence-level sign recognition
 
 ## Current Limitations
 
-The current version has several limitations:
+The current version has the following limitations:
 
-- Only four gestures are supported by the trained model.
+- Only four gestures are supported.
 - The system currently focuses on single-hand landmark detection.
-- Recognition performance can be affected by lighting and camera quality.
+- Recognition performance can be affected by lighting conditions.
+- Camera quality can affect recognition performance.
 - The model requires a sequence of 30 frames for prediction.
-- The current system is primarily intended as a project demonstration and can be further improved for real-world deployment.
+- The current system is primarily intended as a project demonstration.
 
 ## Project Contribution
 
 This project demonstrates the implementation of a real-time sign language recognition system using computer vision and deep learning.
 
-The project was developed and modified as a personal learning and development project, including dataset collection, model training, application configuration, and web interface implementation.
+The project includes:
+
+- Custom dataset collection
+- Hand landmark extraction
+- LSTM model training
+- Real-time gesture prediction
+- Flask web interface
+- Model integration
+- Application configuration
+
+The project was developed and modified as a personal learning and development project.
 
 ## License
 
