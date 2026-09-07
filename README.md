@@ -1,18 +1,16 @@
 # AI Real-Time Sign Language Recognition
 
-A real-time sign language recognition system that uses computer vision and deep learning to recognize hand gestures through a webcam and display the predicted gesture in a web interface.
-
 ## Overview
 
-AI Real-Time Sign Language Recognition is a computer vision and deep learning project designed to recognize selected hand gestures in real time.
+AI Real-Time Sign Language Recognition is a computer vision and deep learning project that recognizes selected hand gestures in real time through a webcam.
 
-The system captures live video from a webcam, detects hand landmarks using MediaPipe, extracts landmark features, and uses an LSTM neural network to classify a sequence of hand movements.
+The system uses MediaPipe to extract hand landmarks and an LSTM neural network to classify a sequence of hand movements into one of four supported gestures.
 
-The recognized gesture is displayed through a Flask-based web application.
+The project provides a Flask-based web interface where the webcam feed and recognized gesture are displayed in real time.
 
 ## Currently Supported Gestures
 
-The current trained model recognizes four gestures:
+The current trained model supports the following four gestures:
 
 - HATE
 - HELLO
@@ -21,16 +19,15 @@ The current trained model recognizes four gestures:
 
 ## Features
 
-- Real-time webcam-based gesture recognition
-- Hand landmark detection using MediaPipe
-- Sequence-based gesture classification using LSTM
-- Four-class gesture recognition
-- Prediction confidence display
-- Flask web interface
-- Local gesture data collection
-- LSTM model training pipeline
-- TensorFlow/Keras trained model
-- Real-time prediction through a browser
+- Real-time hand gesture recognition
+- Webcam-based input
+- Hand landmark extraction using MediaPipe
+- LSTM-based sequence classification
+- Support for four trained gestures
+- Confidence-based prediction
+- Real-time prediction through a Flask web interface
+- Custom dataset collection and model training
+- Local execution using Python
 
 ## Technologies Used
 
@@ -47,125 +44,152 @@ The current trained model recognizes four gestures:
 
 ## System Architecture
 
-```text
-Webcam
-   |
-   v
-OpenCV
-   |
-   v
-MediaPipe Hand Detection
-   |
-   v
-Hand Landmark Extraction
-   |
-   v
-63 Features per Frame
-   |
-   v
-30-Frame Sequence
-   |
-   v
-LSTM Neural Network
-   |
-   v
-Gesture Prediction
-   |
-   v
-Flask Web Interface
+Webcam → OpenCV → MediaPipe Hand Landmarks → 30-Frame Sequence → LSTM Neural Network → Gesture Prediction → Flask Web Interface
 
-Model Details
+## Model Details
 
-The project uses an LSTM-based neural network to learn temporal patterns from sequences of hand landmarks.
-
-Input Data
-
-Each frame contains:
-
-21 MediaPipe hand landmarks
-3 coordinates per landmark
-X, Y, and Z coordinates
-63 features per frame
+### Input
 
 The model receives a sequence of 30 consecutive frames.
 
-Input Shape
-(30, 63)
-LSTM Architecture
-Input: (30, 63)
-        |
-        v
-LSTM (128 units)
-        |
-        v
-Dropout (0.3)
-        |
-        v
-LSTM (64 units)
-        |
-        v
-Dropout (0.3)
-        |
-        v
-Dense (64 units, ReLU)
-        |
-        v
-Dropout (0.2)
-        |
-        v
-Dense (4 units, Softmax)
-        |
-        v
-Gesture Prediction
+For each frame, MediaPipe extracts 21 hand landmarks.
+
+Each landmark contains three values:
+
+- X coordinate
+- Y coordinate
+- Z coordinate
+
+Therefore:
+
+21 landmarks × 3 values = 63 features per frame
+
+Final model input shape:
+
+30 × 63
+
+### Architecture
+
+The LSTM model contains:
+
+- LSTM layer with 128 units
+- Dropout layer
+- LSTM layer with 64 units
+- Dropout layer
+- Dense layer with 64 units
+- Dropout layer
+- Softmax output layer with 4 classes
+
+The output classes are:
+
+- HATE
+- HELLO
+- NO
+- YES
 
 ## Dataset
 
-The current model was trained using 800 gesture sequences.
+The dataset was collected using the project's webcam-based data collection script.
 
-Gesture	Samples
-HATE	200
-HELLO	200
-NO	200
-YES	200
-Total	800
+Each gesture contains:
 
-Each sample contains 30 consecutive frames of hand landmark data.
+- 200 sequences
+- 30 frames per sequence
+- 63 landmark features per frame
 
-The training dataset is stored locally and is excluded from the GitHub repository using .gitignore.
+Total dataset:
 
-##Training
+4 gestures × 200 sequences = 800 sequences
 
-The dataset was divided into:
+The dataset is divided into training and testing sets.
 
 Training samples: 640
+
 Testing samples: 160
 
-The model was trained using:
+The collected dataset is stored locally under:
 
-Epochs: 40
-Batch size: 32
-Test Accuracy
+backend/data/
 
-The current trained model achieved:
+The dataset is excluded from Git tracking using the project's .gitignore configuration.
 
-99.37% test accuracy
+## Training
 
-This result is based on the current locally collected dataset and the train/test split used for this project.
+The model is trained using TensorFlow and Keras.
 
-##Project Workflow
-Start the webcam.
-Capture live video frames.
-Detect the user's hand using MediaPipe.
-Extract 21 hand landmarks.
-Convert the landmarks into 63 numerical features.
-Collect 30 consecutive frames.
-Pass the sequence to the trained LSTM model.
-Calculate prediction probabilities.
-Select the predicted gesture.
-Display the gesture and confidence through the Flask web interface.
+Training configuration:
 
-##Project Structure
+- Gestures: 4
+- Total sequences: 800
+- Training sequences: 640
+- Testing sequences: 160
+- Sequence length: 30 frames
+- Features per frame: 63
+- Epochs: 40
+- Batch size: 32
+
+The trained model is saved as:
+
+model/sign_language_model.h5
+
+## Test Accuracy
+
+The trained model achieved approximately:
+
+**99.37% test accuracy**
+
+The final model produces predictions for four classes:
+
+| Class | Gesture |
+|---|---|
+| 0 | HATE |
+| 1 | HELLO |
+| 2 | NO |
+| 3 | YES |
+
+## Project Workflow
+
+### 1. Data Collection
+
+The webcam captures hand movements for each gesture.
+
+MediaPipe detects the hand and extracts 21 hand landmarks from every frame.
+
+### 2. Feature Extraction
+
+The X, Y and Z coordinates of the detected landmarks are stored as numerical features.
+
+Each frame produces 63 features.
+
+### 3. Sequence Creation
+
+Thirty consecutive frames are grouped together to create one input sequence.
+
+### 4. Model Training
+
+The collected sequences are used to train an LSTM neural network.
+
+### 5. Real-Time Prediction
+
+During application execution, new webcam frames are continuously processed.
+
+The latest 30 frames are passed to the trained model.
+
+### 6. Gesture Classification
+
+The model predicts the most likely gesture and its confidence score.
+
+### 7. Web Display
+
+The recognized gesture and webcam feed are displayed through the Flask web application.
+
+## Project Structure
+
 AI-Real-Time-Sign-Language-Recognition/
+│
+├── App.py
+├── README.md
+├── .gitignore
 │
 ├── backend/
 │   ├── collect_data.py
@@ -177,195 +201,187 @@ AI-Real-Time-Sign-Language-Recognition/
 ├── templates/
 │   └── index.html
 │
-├── App.py
-├── README.md
-├── .gitignore
 ├── A Real-Time Automatic Translation of Text to Sign Language.pptx
 ├── SIGN LANG REPORT.pdf
 ├── Mediapipe
 └── Tensorflow
 
-##Installation
-1. Clone the Repository
+## Installation
+
+### 1. Clone the Repository
+
 git clone https://github.com/sandeep171199/AI-Real-Time-Sign-Language-Recognition.git
 
-Move into the project directory:
-
 cd AI-Real-Time-Sign-Language-Recognition
-2. Create a Virtual Environment
 
-Python 3.11 is recommended for the current dependency versions.
+### 2. Create a Virtual Environment
+
+Python 3.11 is recommended for this project.
 
 py -3.11 -m venv .venv
-3. Activate the Virtual Environment
-.\.venv\Scripts\Activate.ps1
-4. Install Dependencies
 
-##Install the compatible versions used during development:
+### 3. Activate the Virtual Environment
+
+On Windows PowerShell:
+
+.\.venv\Scripts\Activate.ps1
+
+### 4. Install Dependencies
+
+Install the required packages:
 
 pip install numpy==1.23.5
-pip install opencv-python==4.7.0.72
-pip install mediapipe==0.10.9
-pip install tensorflow==2.12.0
-pip install matplotlib==3.7.5
-pip install opencv-contrib-python==4.7.0.72
-pip install flask
-pip install pyttsx3
-pip install scikit-learn==1.3.2
-Run the Application
 
-After activating the virtual environment, run:
+pip install opencv-python==4.7.0
+
+pip install mediapipe==0.10.9
+
+pip install tensorflow==2.12.0
+
+pip install matplotlib==3.7.5
+
+pip install opencv-contrib-python==4.7.0.72
+
+pip install contourpy==1.0.7
+
+pip install flask
+
+pip install pyttsx3
+
+pip install scikit-learn==1.3.2
+
+## Run the Application
+
+After installing the dependencies, activate the virtual environment and run:
 
 python App.py
 
 The Flask application will start locally.
 
-Open your browser and visit:
+Open the following address in your browser:
 
 http://127.0.0.1:5000
 
-Allow camera access when requested.
+Allow camera access if requested.
 
-Show one of the supported gestures in front of the webcam to see the prediction.
+Show one of the supported gestures in front of the webcam.
 
-##Data Collection
+## Data Collection
 
 New training data can be collected using:
 
-python backend\collect_data.py
+python backend/collect_data.py
 
-The data collection script:
+The data collection script is configured for the following gestures:
 
-Opens the webcam.
-Detects a hand using MediaPipe.
-Extracts the 21 hand landmarks.
-Converts them into 63 features.
-Records 30-frame sequences.
-Saves the sequences as NumPy .npy files.
+- HATE
+- HELLO
+- NO
+- YES
 
-The collected dataset is stored locally in:
+Each gesture is collected as 200 sequences.
+
+Each sequence contains 30 frames.
+
+The collected sequences are saved in:
 
 backend/data/
 
-The dataset is excluded from GitHub using .gitignore.
+## Model Training
 
-##Model Training
+After collecting the required dataset, the model can be trained using:
 
-After collecting the required training data, run:
+python backend/train_model.py
 
-python backend\train_model.py
+The training script loads the four supported gesture classes and trains the LSTM model.
 
-The training script loads the selected gesture data and trains the LSTM model.
-
-The trained model is saved as:
+After training, the model is saved to:
 
 model/sign_language_model.h5
-How the Recognition Works
 
-##The recognition pipeline works as follows:
+## How It Works
 
-Live Camera Feed
-       |
-       v
-Hand Detection
-       |
-       v
-MediaPipe Landmarks
-       |
-       v
-21 Landmarks × 3 Coordinates
-       |
-       v
-63 Features
-       |
-       v
-30 Consecutive Frames
-       |
-       v
-LSTM Model
-       |
-       v
-Probability for Each Gesture
-       |
-       v
-Predicted Gesture
+The application performs the following steps during real-time recognition:
 
-The LSTM model processes the sequence of hand movements rather than relying on a single frame. This allows the model to learn temporal patterns within the gesture.
+1. Open the webcam using OpenCV.
+2. Capture the current video frame.
+3. Process the frame using MediaPipe.
+4. Detect the hand and extract its 21 landmarks.
+5. Store the 63 landmark values for the current frame.
+6. Build a sequence of 30 frames.
+7. Send the sequence to the trained LSTM model.
+8. Calculate the prediction confidence.
+9. Display the recognized gesture when the confidence passes the configured threshold.
+10. Continue processing the next webcam frames.
 
-Flask Web Interface
+If no hand is detected, the current sequence is reset.
 
-The project includes a Flask-based web interface.
+## Flask Web Interface
 
-The interface provides:
+The project includes a Flask web interface.
 
-Live webcam feed
-Real-time gesture recognition
-Prediction information
-Browser-based access
+The interface displays:
 
-The main Flask application is:
+- Project title
+- Webcam feed
+- Real-time hand landmark detection
+- Recognized gesture
+- Prediction confidence
+- Frame information
+
+The interface is implemented using:
+
+templates/index.html
+
+The Flask application is implemented using:
 
 App.py
 
-The HTML template is located at:
+## Applications
 
-templates/index.html
-Applications
+The project demonstrates how computer vision and deep learning can be used for gesture recognition.
 
-Potential applications of the system include:
+Potential applications include:
 
-Educational sign language tools
-Accessibility-focused applications
-Gesture-controlled interfaces
-Human-computer interaction
-Real-time gesture recognition
-Sign language learning systems
+- Sign language learning systems
+- Gesture-controlled applications
+- Human-computer interaction
+- Accessibility-oriented software
+- Educational demonstrations
+- Computer vision research projects
 
-##Future Improvements
+## Future Improvements
 
-The project can be extended with:
+Possible future improvements include:
 
-More sign language gestures
-Larger and more diverse datasets
-Multiple-hand recognition
-Prediction smoothing
-Improved recognition under different lighting conditions
-Continuous gesture recognition
-Sentence formation
-Text-to-speech output
-Improved web interface
-Cloud deployment
-Current Limitations
+- Adding more sign language gestures
+- Increasing the size and diversity of the dataset
+- Supporting two-hand gestures
+- Improving recognition stability
+- Adding text-to-speech output
+- Improving the web interface
+- Deploying the application as an online service
+- Improving model performance under different lighting conditions
+- Supporting continuous sentence-level sign recognition
 
-The current implementation has four supported gestures and uses a locally collected dataset.
+## Current Limitations
 
-##Recognition performance can vary depending on:
+The current version has several limitations:
 
-Lighting conditions
-Camera quality
-Hand position
-Background
-Distance from the camera
-Similarity between gestures
+- Only four gestures are supported by the trained model.
+- The system currently focuses on single-hand landmark detection.
+- Recognition performance can be affected by lighting and camera quality.
+- The model requires a sequence of 30 frames for prediction.
+- The current system is primarily intended as a project demonstration and can be further improved for real-world deployment.
 
-The reported 99.37% accuracy is based on the current dataset and test split and should not be interpreted as universal real-world accuracy.
+## Project Contribution
 
-Project Contribution
+This project demonstrates the implementation of a real-time sign language recognition system using computer vision and deep learning.
 
-This project has been developed and customized as a hands-on implementation of real-time sign language recognition.
+The project was developed and modified as a personal learning and development project, including dataset collection, model training, application configuration, and web interface implementation.
 
-##The current implementation includes:
+## License
 
-A customized four-class gesture dataset
-MediaPipe-based hand landmark extraction
-LSTM-based gesture classification
-Model training pipeline
-Trained TensorFlow/Keras model
-Webcam-based real-time prediction
-Flask web interface
+This project is intended for educational and learning purposes.
 
-##License
-
-This project is intended for educational and portfolio purposes.
-
-Please make sure the license and attribution requirements of any third-party code, libraries, models, datasets, or other resources used in the project are respected.
+Please respect the license and attribution requirements of any third-party code, libraries, models, datasets, or other resources used in the project.
